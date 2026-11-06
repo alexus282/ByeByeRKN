@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#020F21</color>
+    <!-- Matches Palette.bgBase, so there is no flash between the splash screen and the first frame. -->
+    <color name="app_background">#101012</color>
+
+    <!-- Dark-only app. The window background has to be a resource: Android 12+ ignores an inline
+         colour when it picks the splash screen background, and falls back to white. -->
+    <style name="Theme.Dostup" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/app_background</item>
+    </style>
+
+    <!-- Shown while the process starts. MainActivity switches to Theme.Dostup in onCreate. -->
+    <style name="Theme.Dostup.Starting">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+</resources>

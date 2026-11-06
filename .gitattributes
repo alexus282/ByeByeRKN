@@ -1,0 +1,11 @@
+* text=auto
+# Must keep these line endings on every system, or the scripts stop running.
+gradlew text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+# Binary files.
+*.so binary
+*.jar binary
+*.webp binary
+*.png binary
+*.jks binary
