@@ -2,7 +2,8 @@ package com.dostup.app.vpn
 
 /** Where traffic leaves Cloudflare, parsed from a cdn-cgi/trace response. */
 data class ExitInfo(val colo: String, val country: String, val ip: String, val warp: Boolean) {
-    val city: String? get() = CITIES[colo]
+    /** The exit city in Russian for [language] "ru", in English otherwise; null when unknown. */
+    fun city(language: String): String? = CITIES[colo]?.let { if (language == "ru") it.ru else it.en }
 
     /**
      * Traffic leaving Cloudflare here crosses Russian networks and DPI again, which is why
@@ -11,8 +12,7 @@ data class ExitInfo(val colo: String, val country: String, val ip: String, val w
      */
     val inRussia: Boolean get() = colo in RUSSIAN_COLOS
 
-    /** "Варшава, PL" or just the code when the city is unknown. */
-    val label: String get() = listOfNotNull(city ?: colo, country.takeIf { it.isNotBlank() }).joinToString(", ")
+    class City(val en: String, val ru: String)
 
     companion object {
         fun parse(body: String): ExitInfo? {
@@ -32,17 +32,30 @@ data class ExitInfo(val colo: String, val country: String, val ip: String, val w
 
         /** Cloudflare data centres reachable from Russia and nearby, by IATA code. */
         val CITIES = mapOf(
-            "WAW" to "Варшава", "FRA" to "Франкфурт", "HEL" to "Хельсинки", "ARN" to "Стокгольм",
-            "AMS" to "Амстердам", "VIE" to "Вена", "PRG" to "Прага", "BUD" to "Будапешт",
-            "RIX" to "Рига", "TLL" to "Таллин", "VNO" to "Вильнюс", "DME" to "Москва",
-            "LED" to "Санкт-Петербург", "KJA" to "Красноярск", "SVX" to "Екатеринбург", "OVB" to "Новосибирск",
-            "OTP" to "Бухарест", "SOF" to "София", "BEG" to "Белград", "KIV" to "Кишинёв",
-            "DUS" to "Дюссельдорф", "HAM" to "Гамбург", "MUC" to "Мюнхен", "BER" to "Берлин", "TXL" to "Берлин",
-            "CPH" to "Копенгаген", "OSL" to "Осло", "LHR" to "Лондон", "MAN" to "Манчестер", "CDG" to "Париж",
-            "MRS" to "Марсель", "MXP" to "Милан", "FCO" to "Рим", "ZRH" to "Цюрих", "GVA" to "Женева",
-            "IST" to "Стамбул", "EVN" to "Ереван", "TBS" to "Тбилиси", "GYD" to "Баку", "ALA" to "Алматы",
-            "TAS" to "Ташкент", "KBP" to "Киев", "MSQ" to "Минск", "ATH" to "Афины", "LIS" to "Лиссабон",
-            "MAD" to "Мадрид", "BCN" to "Барселона", "BRU" to "Брюссель", "DUB" to "Дублин",
+            "WAW" to City("Warsaw", "Варшава"), "FRA" to City("Frankfurt", "Франкфурт"),
+            "HEL" to City("Helsinki", "Хельсинки"), "ARN" to City("Stockholm", "Стокгольм"),
+            "AMS" to City("Amsterdam", "Амстердам"), "VIE" to City("Vienna", "Вена"),
+            "PRG" to City("Prague", "Прага"), "BUD" to City("Budapest", "Будапешт"),
+            "RIX" to City("Riga", "Рига"), "TLL" to City("Tallinn", "Таллин"),
+            "VNO" to City("Vilnius", "Вильнюс"), "DME" to City("Moscow", "Москва"),
+            "LED" to City("Saint Petersburg", "Санкт-Петербург"), "KJA" to City("Krasnoyarsk", "Красноярск"),
+            "SVX" to City("Yekaterinburg", "Екатеринбург"), "OVB" to City("Novosibirsk", "Новосибирск"),
+            "OTP" to City("Bucharest", "Бухарест"), "SOF" to City("Sofia", "София"),
+            "BEG" to City("Belgrade", "Белград"), "KIV" to City("Chișinău", "Кишинёв"),
+            "DUS" to City("Düsseldorf", "Дюссельдорф"), "HAM" to City("Hamburg", "Гамбург"),
+            "MUC" to City("Munich", "Мюнхен"), "BER" to City("Berlin", "Берлин"), "TXL" to City("Berlin", "Берлин"),
+            "CPH" to City("Copenhagen", "Копенгаген"), "OSL" to City("Oslo", "Осло"),
+            "LHR" to City("London", "Лондон"), "MAN" to City("Manchester", "Манчестер"),
+            "CDG" to City("Paris", "Париж"), "MRS" to City("Marseille", "Марсель"),
+            "MXP" to City("Milan", "Милан"), "FCO" to City("Rome", "Рим"),
+            "ZRH" to City("Zurich", "Цюрих"), "GVA" to City("Geneva", "Женева"),
+            "IST" to City("Istanbul", "Стамбул"), "EVN" to City("Yerevan", "Ереван"),
+            "TBS" to City("Tbilisi", "Тбилиси"), "GYD" to City("Baku", "Баку"),
+            "ALA" to City("Almaty", "Алматы"), "TAS" to City("Tashkent", "Ташкент"),
+            "KBP" to City("Kyiv", "Киев"), "MSQ" to City("Minsk", "Минск"),
+            "ATH" to City("Athens", "Афины"), "LIS" to City("Lisbon", "Лиссабон"),
+            "MAD" to City("Madrid", "Мадрид"), "BCN" to City("Barcelona", "Барселона"),
+            "BRU" to City("Brussels", "Брюссель"), "DUB" to City("Dublin", "Дублин"),
         )
     }
 }

@@ -1,5 +1,7 @@
 package com.dostup.app.awg
 
+import androidx.annotation.StringRes
+import com.dostup.app.R
 import java.security.SecureRandom
 
 /** What AmneziaWG sends as I1, the first datagram of every handshake. */
@@ -14,20 +16,20 @@ enum class FirstPacket { NONE, QUIC, DNS, STUN, SIP }
  * pattern for DPI to learn.
  */
 enum class Obfuscation(
-    val title: String,
-    val summary: String,
+    @StringRes val titleRes: Int,
+    @StringRes val summaryRes: Int,
     val junkCount: IntRange,
     val junkMin: IntRange,
     val junkSpread: IntRange,
     val firstPacket: FirstPacket,
 ) {
-    LIGHT("Лёгкая", "Несколько мусорных пакетов перед рукопожатием", 3..6, 40..64, 20..60, FirstPacket.NONE),
-    QUIC("QUIC", "Первый пакет — HTTP/3 к обычному сайту", 3..6, 40..64, 20..60, FirstPacket.QUIC),
-    STUN("STUN", "Первый пакет — как в видеозвонках WebRTC", 3..6, 40..64, 20..60, FirstPacket.STUN),
-    DNS("DNS", "Первый пакет — DNS-запрос", 3..6, 40..64, 20..60, FirstPacket.DNS),
-    SIP("SIP", "Первый пакет — как в IP-телефонии", 3..6, 40..64, 20..60, FirstPacket.SIP),
-    HEAVY("Усиленная", "Много мусорных пакетов, для жёстких сетей", 60..120, 20..40, 300..800, FirstPacket.NONE),
-    NONE("Без маскировки", "Обычный WireGuard", 0..0, 0..0, 0..0, FirstPacket.NONE);
+    LIGHT(R.string.obf_light, R.string.obf_light_summary, 3..6, 40..64, 20..60, FirstPacket.NONE),
+    QUIC(R.string.obf_quic, R.string.obf_quic_summary, 3..6, 40..64, 20..60, FirstPacket.QUIC),
+    STUN(R.string.obf_stun, R.string.obf_stun_summary, 3..6, 40..64, 20..60, FirstPacket.STUN),
+    DNS(R.string.obf_dns, R.string.obf_dns_summary, 3..6, 40..64, 20..60, FirstPacket.DNS),
+    SIP(R.string.obf_sip, R.string.obf_sip_summary, 3..6, 40..64, 20..60, FirstPacket.SIP),
+    HEAVY(R.string.obf_heavy, R.string.obf_heavy_summary, 60..120, 20..40, 300..800, FirstPacket.NONE),
+    NONE(R.string.obf_none, R.string.obf_none_summary, 0..0, 0..0, 0..0, FirstPacket.NONE);
 
     fun params(sni: String? = null): AwgParams {
         val jc = junkCount.pick()

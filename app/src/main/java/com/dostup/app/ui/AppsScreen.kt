@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,11 +33,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dostup.app.R
 import com.dostup.app.data.SplitMode
 import com.dostup.app.data.Store
 import com.dostup.app.split.AppCatalog
@@ -85,14 +88,14 @@ fun AppsScreen(vpn: VpnController, store: Store) {
 
     Box(Modifier.fillMaxSize().background(Palette.bgBase)) {
         Column(Modifier.fillMaxSize()) {
-            TopAppBar(title = "Приложения", largeTitle = "Раздельный туннель", scrollBehavior = scrollBehavior)
+            TopAppBar(title = stringResource(R.string.nav_apps), largeTitle = stringResource(R.string.split_tunnel), scrollBehavior = scrollBehavior)
             LazyColumn(
-                Modifier.fillMaxSize().overScrollVertical().nestedScroll(scrollBehavior.nestedScrollConnection),
+                Modifier.align(Alignment.CenterHorizontally).widthIn(max = MaxContentWidth).fillMaxSize().overScrollVertical().nestedScroll(scrollBehavior.nestedScrollConnection),
                 contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 24.dp),
             ) {
                 item {
                     TabRow(
-                        tabs = listOf("Все", "Кроме", "Только"),
+                        tabs = listOf(stringResource(R.string.tab_all), stringResource(R.string.tab_except), stringResource(R.string.tab_only)),
                         selectedTabIndex = modes.indexOf(mode),
                         onTabSelected = { index ->
                             changed = true
@@ -108,9 +111,9 @@ fun AppsScreen(vpn: VpnController, store: Store) {
                     )
                     Text(
                         when (mode) {
-                            SplitMode.ALL -> "Весь трафик телефона идёт через VPN."
-                            SplitMode.EXCLUDE -> "Отмеченные приложения работают напрямую, остальные через VPN. Удобно для банков, Госуслуг и маркетплейсов."
-                            SplitMode.INCLUDE -> "Через VPN идут только отмеченные приложения, всё остальное напрямую."
+                            SplitMode.ALL -> stringResource(R.string.split_all_hint)
+                            SplitMode.EXCLUDE -> stringResource(R.string.split_exclude_hint)
+                            SplitMode.INCLUDE -> stringResource(R.string.split_include_hint)
                         },
                         color = Palette.textTertiary,
                         fontSize = 15.sp,
@@ -123,9 +126,9 @@ fun AppsScreen(vpn: VpnController, store: Store) {
                     item {
                         SectionCard(Modifier.padding(top = 20.dp)) {
                             SuperArrow(
-                                title = "Применить сейчас",
+                                title = stringResource(R.string.apply_now),
                                 titleColor = BasicComponentDefaults.titleColor(color = Palette.brand),
-                                summary = "Переподключить VPN с новыми настройками",
+                                summary = stringResource(R.string.apply_now_summary),
                                 insideMargin = RowMargin,
                                 onClick = {
                                     changed = false
@@ -139,25 +142,25 @@ fun AppsScreen(vpn: VpnController, store: Store) {
                 if (mode == SplitMode.ALL) return@LazyColumn
 
                 item {
-                    SectionTitle("Быстрый выбор")
+                    SectionTitle(stringResource(R.string.quick_pick))
                     SectionCard {
                         if (mode == SplitMode.EXCLUDE) {
                             SuperArrow(
-                                title = "Добавить российские сервисы",
-                                summary = "Банки, Госуслуги, маркетплейсы, Яндекс, VK",
+                                title = stringResource(R.string.add_russian_services),
+                                summary = stringResource(R.string.add_russian_services_summary),
                                 insideMargin = RowMargin,
                                 onClick = { setSelected(selected + AppCatalog.russianServices) },
                             )
                         } else {
                             SuperArrow(
-                                title = "Добавить заблокированные",
-                                summary = "Telegram, YouTube, Discord, Instagram, WhatsApp",
+                                title = stringResource(R.string.add_blocked),
+                                summary = stringResource(R.string.add_blocked_summary),
                                 insideMargin = RowMargin,
                                 onClick = { setSelected(selected + AppCatalog.blockedServices) },
                             )
                         }
                         RowDivider()
-                        SuperArrow(title = "Снять все отметки", insideMargin = RowMargin, onClick = { setSelected(emptySet()) })
+                        SuperArrow(title = stringResource(R.string.clear_all), insideMargin = RowMargin, onClick = { setSelected(emptySet()) })
                     }
                 }
 
@@ -174,11 +177,11 @@ fun AppsScreen(vpn: VpnController, store: Store) {
                 val visible = list
                     .filter { query.isBlank() || it.label.contains(query, true) || it.packageName.contains(query, true) }
                 item {
-                    SectionTitle("Приложения · отмечено ${list.count { it.packageName in selected }} из ${list.size}")
+                    SectionTitle(stringResource(R.string.apps_count, list.count { it.packageName in selected }, list.size))
                     TextField(
                         value = query,
                         onValueChange = { query = it },
-                        label = "Поиск приложения",
+                        label = stringResource(R.string.search_apps),
                         useLabelAsPlaceholder = true,
                         singleLine = true,
                         backgroundColor = Palette.bgSurfaceAlt,

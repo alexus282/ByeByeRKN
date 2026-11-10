@@ -16,11 +16,11 @@ object VpnNotification : GoBackend.ForegroundNotification {
 
     override fun id() = 1
 
-    override fun build(context: Context): Notification = notification(context, "Подключение…")
+    override fun build(context: Context): Notification = notification(context, context.getString(R.string.status_connecting))
 
     fun createChannel(context: Context) {
         val channel = NotificationChannel(CHANNEL, "VPN", NotificationManager.IMPORTANCE_LOW).apply {
-            description = "Показывает, что VPN работает"
+            description = context.getString(R.string.notification_channel_description)
             setShowBadge(false)
         }
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
@@ -29,9 +29,12 @@ object VpnNotification : GoBackend.ForegroundNotification {
     fun update(context: Context, status: VpnStatus, exit: ExitInfo?, wantConnected: Boolean) {
         val manager = context.getSystemService(NotificationManager::class.java)
         val text = when (status) {
-            is VpnStatus.Connected -> listOfNotNull("Подключено", exit?.city).joinToString(" · ")
-            is VpnStatus.Working -> "Подключение…"
-            is VpnStatus.Failed -> if (wantConnected) "Нет связи, пробую снова…" else null
+            is VpnStatus.Connected -> listOfNotNull(
+                context.getString(R.string.notification_connected),
+                exit?.city(context.resources.configuration.locales[0].language),
+            ).joinToString(" · ")
+            is VpnStatus.Working -> context.getString(R.string.status_connecting)
+            is VpnStatus.Failed -> if (wantConnected) context.getString(R.string.notification_retrying) else null
             VpnStatus.Disconnected -> null
         }
         if (text == null) manager.cancel(id()) else manager.notify(id(), notification(context, text))

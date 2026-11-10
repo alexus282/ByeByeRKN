@@ -9,3 +9,5 @@ keystore.properties
 *.iml
 captures/
 build.ps1
+keystore/
+*.pem
